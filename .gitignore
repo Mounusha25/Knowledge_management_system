@@ -1,0 +1,227 @@
+# =============================================================================
+# RAG-Based Knowledge Management System - Git Ignore
+# =============================================================================
+
+# Environment Variables (CRITICAL - NEVER COMMIT!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+# =============================================================================
+# Python & Dependencies
+# =============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+.conda/
+
+# =============================================================================
+# AI/ML Specific Files
+# =============================================================================
+# Vector Database & Embeddings
+vector_db/
+data/vector_db/
+*.chroma
+*.faiss
+*.index
+
+# Model Files & Checkpoints (exclude ML model files, not source code)
+saved_models/
+pretrained_models/
+model_checkpoints/
+*.pkl
+*.pickle
+*.pt
+*.pth
+*.h5
+*.hdf5
+*.onnx
+
+# Include our source code models directory
+!app/models/
+
+# Document Storage & Uploads
+uploads/
+documents/
+temp/
+tmp/
+*.pdf
+*.docx
+*.doc
+*.txt
+*.md
+*.rtf
+
+# Cache Files
+.cache/
+*.cache
+embeddings_cache/
+query_cache/
+
+# =============================================================================
+# Application Logs & Monitoring
+# =============================================================================
+# Log Files
+*.log
+logs/
+app.log
+success.log
+optimized.log
+nohup.out
+
+# Monitoring & Metrics
+metrics/
+stats/
+performance/
+
+# =============================================================================
+# Database Files
+# =============================================================================
+*.db
+*.sqlite3
+*.sqlite
+database/
+db/
+
+# =============================================================================
+# Development & IDE
+# =============================================================================
+# VS Code
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+
+# Vim/Emacs
+*.swp
+*.swo
+*~
+.netrwhist
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# =============================================================================
+# Operating System
+# =============================================================================
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+
+# Windows
+ehthumbs.db
+Thumbs.db
+Thumbs.db:encryptable
+*.lnk
+
+# Linux
+*~
+
+# =============================================================================
+# Testing & Coverage
+# =============================================================================
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# =============================================================================
+# Deployment & Production
+# =============================================================================
+# Docker
+*.tar
+*.tar.gz
+
+# Kubernetes
+*.yaml.local
+*.yml.local
+
+# CI/CD
+.github/workflows/*.local
+
+# SSL Certificates
+*.pem
+*.key
+*.crt
+*.cert
+*.ca-bundle
+
+# =============================================================================
+# Temporary & Backup Files
+# =============================================================================
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+*.rej
+
+# =============================================================================
+# Project Specific
+# =============================================================================
+# Debug & Test Files
+debug_*
+test_*
+*_test.py
+*_debug.py
+
+# Configuration Overrides
+config_local.py
+local_settings.py
+
+# Performance Profiling
+*.prof
+profile_output/
+
+# API Keys & Secrets (CRITICAL!)
+secrets/
+api_keys/
+credentials/
+*.secret

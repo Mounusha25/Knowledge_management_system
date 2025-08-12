@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Knowledge Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-gradient"></div>
+    
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-brain"></i>
+                    <h1>AI Knowledge Hub</h1>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="documents-count">0</span>
+                        <span class="stat-label">Documents</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="queries-count">0</span>
+                        <span class="stat-label">Queries</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Upload Section -->
+            <div class="card upload-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="card-title">
+                        <h2>Upload Documents</h2>
+                        <p>Upload PDF or text files to build your knowledge base</p>
+                    </div>
+                </div>
+                
+                <div class="upload-area" id="upload-area">
+                    <div class="upload-content">
+                        <i class="fas fa-file-upload upload-icon"></i>
+                        <h3>Drag & Drop your files here</h3>
+                        <p>or <span class="browse-link">browse</span> to choose files</p>
+                        <div class="upload-info">
+                            <small>Supports: PDF, TXT files • Max size: 10MB</small>
+                        </div>
+                    </div>
+                    <input type="file" id="file-input" multiple accept=".pdf,.txt" hidden>
+                </div>
+                
+                <div class="upload-progress" id="upload-progress" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="progress-text" id="progress-text">Uploading...</div>
+                </div>
+                
+                <div class="uploaded-files" id="uploaded-files"></div>
+            </div>
+
+            <!-- Query Section -->
+            <div class="card query-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="card-title">
+                        <h2>Ask AI Assistant</h2>
+                        <p>Get intelligent answers from your uploaded documents</p>
+                    </div>
+                </div>
+                
+                <div class="query-input-container">
+                    <div class="input-wrapper">
+                        <textarea 
+                            id="question-input" 
+                            placeholder="Ask any question about your documents..."
+                            rows="3"></textarea>
+                        <button id="submit-question" class="ask-btn">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Ask AI</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="quick-questions">
+                    <h4>Quick Questions:</h4>
+                    <div class="question-tags">
+                        <span class="question-tag" data-question="What are the main topics in the documents?">📊 Main Topics</span>
+                        <span class="question-tag" data-question="Provide a summary of the content">📝 Summary</span>
+                        <span class="question-tag" data-question="What are the key points mentioned?">🔑 Key Points</span>
+                        <span class="question-tag" data-question="Extract important dates and numbers">📅 Data & Numbers</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response Section -->
+            <div class="card response-card" id="response-card" style="display: none;">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="card-title">
+                        <h2>AI Response</h2>
+                        <p>Generated answer based on your documents</p>
+                    </div>
+                </div>
+                
+                <div class="response-content" id="response-content">
+                    <div class="loading-animation" id="loading-animation">
+                        <div class="loading-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <p>AI is thinking...</p>
+                    </div>
+                </div>
+                
+                <div class="response-actions" id="response-actions" style="display: none;">
+                    <button class="action-btn" onclick="copyResponse()">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                    <button class="action-btn" onclick="clearResponse()">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Notification Toast -->
+    <div class="toast" id="toast">
+        <div class="toast-content">
+            <span class="toast-message"></span>
+            <button class="toast-close">&times;</button>
+        </div>
+    </div>
+
+    <script>
+        let documentsCount = 0;
+        let queriesCount = 0;
+
+        // Initialize drag and drop
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const browseLink = document.querySelector('.browse-link');
+
+        // Upload area interactions
+        uploadArea.addEventListener('click', () => fileInput.click());
+        browseLink.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fileInput.click();
+        });
+
+        // Drag and drop handlers
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        // Handle file uploads
+        async function handleFiles(files) {
+            if (files.length === 0) return;
+
+            const formData = new FormData();
+            const validFiles = [];
+
+            // Validate files
+            for (let file of files) {
+                if (file.type === 'application/pdf' || file.type === 'text/plain' || 
+                    file.name.endsWith('.pdf') || file.name.endsWith('.txt')) {
+                    if (file.size <= 10 * 1024 * 1024) { // 10MB limit
+                        validFiles.push(file);
+                        formData.append('file', file);
+                    } else {
+                        showToast(`File ${file.name} is too large (max 10MB)`, 'error');
+                    }
+                } else {
+                    showToast(`File ${file.name} is not supported (PDF/TXT only)`, 'error');
+                }
+            }
+
+            if (validFiles.length === 0) return;
+
+            // Show progress
+            const progressContainer = document.getElementById('upload-progress');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            
+            progressContainer.style.display = 'block';
+            progressFill.style.width = '0%';
+            progressText.textContent = 'Uploading...';
+
+            try {
+                // Simulate progress for better UX
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += Math.random() * 15;
+                    if (progress > 80) progress = 80;
+                    progressFill.style.width = progress + '%';
+                }, 200);
+
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+                progressText.textContent = 'Processing...';
+
+                const result = await response.json();
+                
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    if (response.ok) {
+                        showToast(`Successfully processed ${result.chunks_processed} chunks!`, 'success');
+                        addUploadedFiles(validFiles);
+                        documentsCount += validFiles.length;
+                        updateStats();
+                    } else {
+                        showToast(result.error || 'Upload failed', 'error');
+                    }
+                }, 1000);
+
+            } catch (error) {
+                progressContainer.style.display = 'none';
+                showToast('Network error during upload', 'error');
+                console.error('Error:', error);
+            }
+        }
+
+        // Add uploaded files to display
+        function addUploadedFiles(files) {
+            const container = document.getElementById('uploaded-files');
+            
+            for (let file of files) {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'uploaded-file';
+                fileItem.innerHTML = `
+                    <div class="file-info">
+                        <i class="fas ${file.type.includes('pdf') ? 'fa-file-pdf' : 'fa-file-alt'}"></i>
+                        <span class="file-name">${file.name}</span>
+                        <span class="file-size">${formatFileSize(file.size)}</span>
+                    </div>
+                    <div class="file-status">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                `;
+                container.appendChild(fileItem);
+            }
+        }
+
+        // Query handling
+        document.getElementById('submit-question').addEventListener('click', handleQuery);
+        document.getElementById('question-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                handleQuery();
+            }
+        });
+
+        // Quick question tags
+        document.querySelectorAll('.question-tag').forEach(tag => {
+            tag.addEventListener('click', () => {
+                document.getElementById('question-input').value = tag.dataset.question;
+                handleQuery();
+            });
+        });
+
+        async function handleQuery() {
+            const question = document.getElementById('question-input').value.trim();
+            if (!question) {
+                showToast('Please enter a question', 'warning');
+                return;
+            }
+
+            const responseCard = document.getElementById('response-card');
+            const responseContent = document.getElementById('response-content');
+            const responseActions = document.getElementById('response-actions');
+
+            // Show response card and loading
+            responseCard.style.display = 'block';
+            responseActions.style.display = 'none';
+
+            // Create fresh loading animation
+            responseContent.innerHTML = `
+                <div class="loading-animation" style="display: block;">
+                    <div class="loading-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <p>AI is thinking...</p>
+                </div>
+            `;
+
+            // Scroll to response
+            responseCard.scrollIntoView({ behavior: 'smooth' });
+
+            try {
+                console.log('Sending query:', question); // Debug log
+                
+                const response = await fetch('/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ question })
+                });
+
+                console.log('Response status:', response.status); // Debug log
+                const result = await response.json();
+                console.log('Response result:', result); // Debug log
+                
+                setTimeout(() => {
+                    if (response.ok) {
+                        displayResponse(result.response);
+                        responseActions.style.display = 'flex';
+                        queriesCount++;
+                        updateStats();
+                        showToast('Query processed successfully!', 'success');
+                    } else {
+                        displayError(result.error || 'Failed to get response');
+                        showToast(result.error || 'Query failed', 'error');
+                    }
+                }, 1500); // Minimum loading time for better UX
+
+            } catch (error) {
+                console.error('Query error:', error); // Debug log
+                setTimeout(() => {
+                    displayError('Network error. Please try again.');
+                    showToast('Network error. Please try again.', 'error');
+                }, 1500);
+            }
+        }
+
+        function displayResponse(text) {
+            const responseContent = document.getElementById('response-content');
+            responseContent.innerHTML = `
+                <div class="response-text">
+                    ${formatResponse(text)}
+                </div>
+            `;
+        }
+
+        function displayError(error) {
+            const responseContent = document.getElementById('response-content');
+            responseContent.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>${error}</p>
+                </div>
+            `;
+        }
+
+        // Utility functions
+        function formatResponse(text) {
+            // Basic markdown-like formatting
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>');
+        }
+
+        function formatFileSize(bytes) {
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            if (bytes === 0) return '0 Bytes';
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function updateStats() {
+            document.getElementById('documents-count').textContent = documentsCount;
+            document.getElementById('queries-count').textContent = queriesCount;
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMessage = toast.querySelector('.toast-message');
+            
+            toastMessage.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+
+        function copyResponse() {
+            const responseText = document.querySelector('.response-text');
+            if (responseText) {
+                navigator.clipboard.writeText(responseText.textContent);
+                showToast('Response copied to clipboard!', 'success');
+            }
+        }
+
+        function clearResponse() {
+            const responseCard = document.getElementById('response-card');
+            responseCard.style.display = 'none';
+            document.getElementById('question-input').value = '';
+        }
+
+        // Toast close handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const toastClose = document.querySelector('.toast-close');
+            if (toastClose) {
+                toastClose.addEventListener('click', () => {
+                    document.getElementById('toast').classList.remove('show');
+                });
+            }
+        });
+
+        // Initialize
+        updateStats();
+    </script>
+</body>
+</html>
