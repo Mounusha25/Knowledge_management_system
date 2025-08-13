@@ -208,9 +208,15 @@ dmypy.json
 # =============================================================================
 # Debug & Test Files
 debug_*
-test_*
-*_test.py
+test_*.txt
+test_*.pdf
+test_*.doc*
 *_debug.py
+
+# Allow tests/ directory but exclude test artifacts
+!tests/
+tests/__pycache__/
+tests/.pytest_cache/
 
 # Configuration Overrides
 config_local.py
