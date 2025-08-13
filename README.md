@@ -369,7 +369,71 @@ curl -X POST http://localhost:8080/query \
 - ✅ **Real-Time Monitoring** with health checks and performance metrics
 - ✅ **Security-First Approach** with input validation and rate limiting
 
-## 💼 Resume-Worthy Highlights
+## � AWS Production Deployment
+
+### **📦 Deployment Architecture**
+
+The system is fully configured for enterprise-grade AWS deployment using modern DevOps practices:
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   GitHub Actions│────│   AWS ECR       │────│   ECS Fargate   │
+│   (CI/CD)       │    │   (Registry)    │    │   (Container)   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+                                │
+                       ┌─────────────────┐
+                       │   Application   │
+                       │   Load Balancer │
+                       └─────────────────┘
+                                │
+                       ┌─────────────────┐
+                       │   CloudWatch    │
+                       │   (Monitoring)  │
+                       └─────────────────┘
+```
+
+### **✅ Production-Ready Features**
+- **🐳 Docker Containerization**: Optimized multi-stage builds with security best practices
+- **🔄 CI/CD Pipeline**: Automated testing, building, and deployment via GitHub Actions
+- **📊 Health Monitoring**: Comprehensive health checks and CloudWatch integration
+- **🔐 Security**: Non-root containers, IAM roles, and VPC networking
+- **📈 Auto-Scaling**: ECS Fargate with automatic scaling based on demand
+- **🛡️ Infrastructure as Code**: CloudFormation templates for reproducible deployments
+
+### **🛠️ Deployment Components**
+```
+├── .github/workflows/
+│   └── aws-deploy.yml           # Automated CI/CD pipeline
+├── .aws/
+│   ├── task-definition.json     # ECS Fargate configuration
+│   ├── alb-cloudformation.yml   # Load balancer setup
+│   └── setup-infrastructure.sh  # AWS infrastructure provisioning
+├── Dockerfile                   # Production-optimized container
+└── docker-compose.yml          # Local development environment
+```
+
+### **💰 Production Cost Estimate**
+- **ECS Fargate**: ~$35/month (1 vCPU, 2GB RAM)
+- **Application Load Balancer**: ~$18/month
+- **CloudWatch Logs**: ~$5/month
+- **ECR Storage**: ~$1/month
+- **Total**: **~$60/month** for production environment
+
+### **⚡ Quick AWS Deployment**
+```bash
+# 1. Setup AWS infrastructure
+./.aws/setup-infrastructure.sh
+
+# 2. Configure GitHub Secrets (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+
+# 3. Push to trigger deployment
+git push origin master
+
+# 4. Monitor deployment
+aws ecs describe-services --cluster rag-knowledge-cluster --services rag-knowledge-service
+```
+
+## �💼 Resume-Worthy Highlights
 
 ### **🎯 Quantifiable Business Impact**
 - **575+ Document Corpus Management** with intelligent search and retrieval
